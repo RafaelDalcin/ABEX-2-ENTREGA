@@ -30,6 +30,11 @@ const Usuario = sequelize.define(
         type: DataTypes.CHAR(1),
         allowNull: false,
     },
+    ativo: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: true
+    }
   },
   {
     freezeTableName: true,

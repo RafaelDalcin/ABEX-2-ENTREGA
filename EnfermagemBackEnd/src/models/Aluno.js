@@ -20,6 +20,10 @@ const Aluno = sequelize.define(
       allowNull: false,
       unique: true,
     },
+    curso: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     semestre: {
       type: DataTypes.INTEGER,
       allowNull: false,

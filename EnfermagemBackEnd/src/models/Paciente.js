@@ -19,6 +19,11 @@ const Paciente = sequelize.define(
       type: DataTypes.CHAR(1),
       allowNull: false,
     },
+    cpf: {
+      type: DataTypes.STRING(12),
+      allowNull: false,
+      unique: true
+    },
     dataNascimento: {
       type: DataTypes.DATE,
       allowNull: false,

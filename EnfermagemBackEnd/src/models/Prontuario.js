@@ -10,23 +10,6 @@ const Prontuario = sequelize.define(
       primaryKey: true,
       autoIncrement: true
     },
-    nome: {
-        type: DataTypes.STRING(100),
-        allowNull: false,
-    },
-    idade: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-    },
-    CPF: {
-      type: DataTypes.STRING(12),
-      allowNull: false,
-    },
-    cidadeEstado: {
-        type: DataTypes.STRING(100),
-        allowNull: false,
-        field: 'cidade_estado'
-    },
     data: {
         type: DataTypes.DATE,
         allowNull: false
