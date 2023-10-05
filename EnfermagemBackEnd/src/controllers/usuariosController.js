@@ -1,15 +1,16 @@
 import Usuario from "../models/Usuario";
+import bcrypt from 'bcrypt';
 
 const getAll = async (req, res) => {
   try {
-    Usuario.findAll
-    const response = await Familia.findAll({
+    const response = await Usuario.findAll({
       order: [['id', 'ASC']]
     });
+
     return res.status(200).send({
-      type: 'success', // success, error, warning, info
-      message: 'Registros recuperados com sucesso', // mensagem para o front exibir
-      data: response // json com informações de resposta
+      type: 'success', 
+      message: 'Registros recuperados com sucesso', 
+      data: response 
     });
   } catch (error) {
     return res.status(200).send({
@@ -27,43 +28,27 @@ const getById = async (req, res) => {
     id = id.toString().replace(/\D/g, '');
     if (!id) {
       return res.status(400).send({
-        message: 'Informe um ID válido para realizar a consulta!'
+        message: 'Informe um código válido para realizar a consulta!'
       });
     }
 
-    let familia = await Familia.findOne({
+    let usuario = await Usuario.findOne({
       where: {
         id
-      }
+      },
     });
-
-    if (!Familia) {
+    
+    if (!usuario) {
       return res.status(400).send({
-        message: `Não foi possível encontrar uma família com o código ${id}`
+        message: `Não foi possível encontrar um usuário com o código ${id}`
       });
     }
 
     return res.status(200).send({
       type: 'success', // success, error, warning, info
       message: 'Registros recuperados com sucesso', // mensagem para o front exibir
-      data: category // json com informações de resposta
+      data: usuario // json com informações de resposta
     });
-  } catch (error) {
-    return res.status(500).send({
-      message: error.message
-    })
-  }
-}
-
-const persist = async (req, res) => {
-  try {
-    let { id } = req.body;
-    //caso nao tenha id, cria um novo registro
-    if (!id) {
-      return await create(req.body, res)
-    }
-
-    return await update(id, req.body, res)
   } catch (error) {
     return res.status(500).send({
       message: error.message
@@ -73,28 +58,68 @@ const persist = async (req, res) => {
 
 const create = async (dados, res) => {
   try {
-    let { name } = dados;
+    let { username, email, senha, tipo  } = dados;
 
-    let categoryExists = await Category.findOne({
+    let usuarioExiste = await Usuario.findOne({
       where: {
-        name
+        username
       }
     });
 
-    if (categoryExists) {
+    if (usuarioExiste) {
       return res.status(200).send({
         type: 'error',
-        message: 'Já existe uma categoria cadastrada com esse nome!'
+        message: 'Já existe um usuário cadastrado com esse username!'
       });
     }
 
-    let response = await Category.create({
-      name
+    let passwordHash = await bcrypt.hash(senha, 10);
+
+    let response = await Usuario.create({
+      username,
+      email,
+      passwordHash,
+      ativo: true,
+      tipo,
     });
 
     return res.status(200).send({
       type: 'success',
-      message: 'Categoria cadastrada com sucesso!',
+      message: 'Usuário cadastrado com sucesso!',
+      data: response
+    });
+  } catch (error) {
+      return res.status(200).send({
+        type: 'error',
+        message: 'Ops! Ocorreu um erro!',
+        data: error.message
+    });
+  }
+}
+
+const update = async (id, dados, res) => {
+  try {
+    let { username, email } = dados;
+
+    let usuario = await Usuario.findOne({
+      where: {
+        id
+      }
+    });
+
+    if (!usuario) {
+      return res.status(200).send({
+        type: 'error',
+        message: 'Usuário não encontrado!'
+      });
+    }
+    
+    Object.keys(dados).forEach(field => category[field] = dados[field]);
+
+    await usuario.save()
+    return res.status(200).send({
+      type: 'success',
+      message: 'Usuário atualizado com sucesso!',
       data: response
     });
   } catch (error) {
@@ -106,65 +131,73 @@ const create = async (dados, res) => {
   }
 }
 
-const update = async (id, dados, res) => {
-  let { name } = dados;
-  let category = await Category.findOne({
-    where: {
-      id
+const persist = async (req, res) => {
+  try {
+    let { id } = req.body;
+
+    if (!id) {
+      return await create(req.body, res);
+    } else {
+      return await update(id, req.body, res);
     }
-  });
-
-  if (!category) {
-    return res.status(400).send({ type: 'error', message: `Categoria com o ID ${id} inexistente` })
+  } catch (error) {
+    return res.status(200).send({
+      type: 'error',
+      message: 'Ops! Ocorreu um erro!',
+      data: error.message
+    });
   }
-
-  //TODO: desenvolver uma lógica pra validar todos os campos
-  //que vieram para atualizar e entao atualizar
-  Object.keys(dados).forEach(field => category[field] = dados[field]);
-
-  await category.save();
-  return res.status(200).send({
-    message: `Categoria ${id} atualizada com sucesso`,
-    data: category
-  });
 }
 
 const destroy = async (req, res) => {
   try {
     let { id } = req.body;
-    //garante que o id só vai ter NUMEROS;
+
     id = id ? id.toString().replace(/\D/g, '') : null;
-    if (!id) {
-      return res.status(400).send({
-        message: 'Informe uma categoria existente para ser deletada!!'
+
+    if(!id) {
+      return res.status(200).send({
+        type: 'error',
+        message: 'Informe um usuário existente para ser deletado!'
       });
     }
 
-    let category = await Category.findOne({
+    let usuario = await Usuario.findOne({
       where: {
-        id,
+        id
       }
     });
 
-    if (!category) {
-      return res.status(400).send({ message: `Não foi encontrada nenhuma categoria resgistrada com o ID ${id}` })
+    if (!usuario) {
+      return res.status(200).send({
+        type: 'error',
+        message: 'Usuário não encontrado!'
+      });
     }
 
-    await category.destroy();
+    await usuario.destroy();
     return res.status(200).send({
-      message: `A categoria informada foi deletada com sucesso`
-    })
+      type: 'success',
+      message: 'Usuário excluído com sucesso!',
+      data: usuario
+    });
   } catch (error) {
-    return res.status(500).send({
-      message: error.message
-    })
+    return res.status(200).send({
+      type: 'error',
+      message: 'Ops! Ocorreu um erro!',
+      data: error.message
+    });
   }
 }
 
+
+
 export default {
-  getAll,
-  getById,
   create,
-  destroy,
+  getAll,
   persist,
+  update,
+  destroy,
+  getById
+
 }

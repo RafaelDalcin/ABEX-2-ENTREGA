@@ -6,9 +6,9 @@ const getAll = async (req, res) => {
       order: [['id', 'ASC']]
     });
     return res.status(200).send({
-      type: 'success', // success, error, warning, info
-      message: 'Registros recuperados com sucesso', // mensagem para o front exibir
-      data: response // json com informações de resposta
+      type: 'success', 
+      message: 'Registros recuperados com sucesso', 
+      data: response 
     });
   } catch (error) {
     return res.status(200).send({
@@ -72,11 +72,11 @@ const persist = async (req, res) => {
 
 const create = async (dados, res) => {
   try {
-    let { nome  } = dados;
+    let { descricao } = dados;
 
     let familiaExiste = await Familia.findOne({
       where: {
-        nome
+        descricao
       }
     });
 
@@ -88,7 +88,7 @@ const create = async (dados, res) => {
     }
 
     let response = await Familia.create({
-      nome
+      descricao
     });
 
     return res.status(200).send({
@@ -106,7 +106,7 @@ const create = async (dados, res) => {
 }
 
 const update = async (id, dados, res) => {
-  let { nome } = dados;
+  let { descricao } = dados;
   let familia = await Familia.findOne({
     where: {
       id

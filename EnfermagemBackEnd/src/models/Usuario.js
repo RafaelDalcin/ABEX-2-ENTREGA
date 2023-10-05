@@ -27,8 +27,8 @@ const Usuario = sequelize.define(
       field: 'password_hash'
     },
     tipo: {
-        type: DataTypes.CHAR(1),
-        allowNull: false,
+        type: DataTypes.STRING(20),
+        allowNull: true,
     },
     ativo: {
       type: DataTypes.BOOLEAN,

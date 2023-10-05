@@ -1,15 +1,14 @@
-import Paciente from "../models/Paciente";
-import Usuario from "../models/Usuario"
+import Grupo from "../models/Grupo";
 
 const getAll = async (req, res) => {
   try {
-    const response = await Paciente.findAll({
+    const response = await Grupo.findAll({
       order: [['id', 'ASC']]
     });
     return res.status(200).send({
-      type: 'success', // success, error, warning, info
-      message: 'Registros recuperados com sucesso', // mensagem para o front exibir
-      data: response // json com informações de resposta
+      type: 'success', 
+      message: 'Registros recuperados com sucesso', 
+      data: response 
     });
   } catch (error) {
     return res.status(200).send({
@@ -31,22 +30,22 @@ const getById = async (req, res) => {
       });
     }
 
-    let familia = await Familia.findOne({
+    let grupo = await Grupo.findOne({
       where: {
         id
       }
     });
 
-    if (!familia) {
+    if (!grupo) {
       return res.status(400).send({
-        message: `Não foi possível encontrar uma família com o código ${id}`
+        message: `Não foi possível encontrar um grupo com o código ${id}`
       });
     }
 
     return res.status(200).send({
       type: 'success', // success, error, warning, info
       message: 'Registros recuperados com sucesso', // mensagem para o front exibir
-      data: familia // json com informações de resposta
+      data: grupo // json com informações de resposta
     });
   } catch (error) {
     return res.status(500).send({
@@ -73,32 +72,28 @@ const persist = async (req, res) => {
 
 const create = async (dados, res) => {
   try {
-    let { nome, username, tipo, passwordHash  } = dados;
+    let { descricao } = dados;
 
-    let pacienteExite = await Paciente.findOne({
+    let grupoExiste = await Grupo.findOne({
       where: {
-        nome
+        descricao
       }
     });
 
-    if (pacienteExite) {
+    if (grupoExiste) {
       return res.status(200).send({
         type: 'error',
-        message: 'Já existe uma família cadastrada com esse nome!'
+        message: 'Já existe um grupo cadastrado com esse nome!'
       });
     }
 
-    let response = await Familia.create({
-      nome
+    let response = await Grupo.create({
+      descricao
     });
-
-    let usuario = await Usuario.create({
-        username, passwordHash, tipo, email 
-    })
 
     return res.status(200).send({
       type: 'success',
-      message: 'Família cadastrada com sucesso!',
+      message: 'Grupo cadastrado com sucesso!',
       data: response
     });
   } catch (error) {
@@ -111,25 +106,25 @@ const create = async (dados, res) => {
 }
 
 const update = async (id, dados, res) => {
-  let { nome } = dados;
-  let familia = await Familia.findOne({
+  let { descricao } = dados;
+  let grupo = await Grupo.findOne({
     where: {
       id
     }
   });
 
-  if (!familia) {
+  if (!grupo) {
     return res.status(400).send({ type: 'error', message: `Família com o código ${id} inexistente` })
   }
 
-  //TODO: desenvolver uma lógica pra validar todos os campos
+  //TODO: desenvolver um lógica pra validar todos os campos
   //que vieram para atualizar e entao atualizar
-  Object.keys(dados).forEach(field => familia[field] = dados[field]);
+  Object.keys(dados).forEach(field => grupo[field] = dados[field]);
 
-  await familia.save();
+  await grupo.save();
   return res.status(200).send({
-    message: `Categoria ${id} atualizada com sucesso`,
-    data: familia
+    message: `Grupo ${id} atualizado com sucesso`,
+    data: grupo
   });
 }
 
@@ -140,23 +135,23 @@ const destroy = async (req, res) => {
     id = id ? id.toString().replace(/\D/g, '') : null;
     if (!id) {
       return res.status(400).send({
-        message: 'Informe uma família existente para ser deletada!'
+        message: 'Informe um grupo existente para ser deletado!'
       });
     }
 
-    let familia = await Familia.findOne({
+    let grupo = await Grupo.findOne({
       where: {
         id,
       }
     });
 
-    if (!familia) {
-      return res.status(400).send({ message: `Não foi encontrada nenhuma família resgistrada com o código ${id}` })
+    if (!grupo) {
+      return res.status(400).send({ message: `Não foi encontrada nenhum grupo resgistrado com o código ${id}` })
     }
 
-    await familia.destroy();
+    await grupo.destroy();
     return res.status(200).send({
-      message: `A família informada foi deletada com sucesso`
+      message: `A grupo informado foi deletado com sucesso`
     })
   } catch (error) {
     return res.status(500).send({
