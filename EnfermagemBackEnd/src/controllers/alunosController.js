@@ -21,6 +21,8 @@ const getAll = async (req, res) => {
         data: error.message
         });
     }
+
+    
 }
 
 const getById = async (req, res) => {
